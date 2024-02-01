@@ -33,7 +33,7 @@ app.post('/login', async (req, res, next) =>{
             const isPasswordValid = await bcrypt.compare(password_hash, user.password_hash);
             if (isPasswordValid){
                 console.log('Login Successful')
-                res.status(200).json({ message: 'Login Successful', user_id: user.user_id });
+                res.status(200).json({ message: 'Login Successful', user_id: user.user_id, role: user.role});
             } else {
                 console.log('Authentication Failed')
                 res.status(401).json({message: 'Authentication Failed'})
