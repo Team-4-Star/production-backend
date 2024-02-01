@@ -186,6 +186,26 @@ app.get('/progress', async (req, res) => {
       console.log(error);
   }
 });
+//get all react cards-----------------
+app.get('/flashcards/react', async (req, res) => {
+  try {
+      const {rows} = await pool.query('SELECT * FROM flashcards WHERE category_id = 1 ORDER BY id ASC;');
+      res.json(rows)
+  } catch (error) {
+      res.json(error)
+      console.log(error);
+  }
+});
+//get all node cards-----------------
+app.get('/flashcards/node', async (req, res) => {
+  try {
+      const {rows} = await pool.query('SELECT * FROM flashcards WHERE category_id = 2 ORDER BY id ASC;');
+      res.json(rows)
+  } catch (error) {
+      res.json(error)
+      console.log(error);
+  }
+});
 
 app.use((err, req, res, next) => {
     console.log(err.stack);
