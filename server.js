@@ -214,6 +214,16 @@ app.get('/flashcards/node', async (req, res) => {
       console.log(error);
   }
 });
+//get all commands
+app.get('/commands', async (req, res, next) => {
+  try {
+      const {rows} = await pool.query('SELECT * FROM commands;');
+      res.json(rows)
+  } catch (error) {
+      res.status(500).json(error)
+      console.log(error);
+  }
+});
 
 app.use((err, req, res, next) => {
     console.log(err.stack);
