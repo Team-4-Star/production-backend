@@ -33,7 +33,7 @@ app.post('/login', async (req, res, next) =>{
             const isPasswordValid = await bcrypt.compare(password_hash, user.password_hash);
             if (isPasswordValid){
                 console.log('Login Successful')
-                res.status(200).json({ message: 'Login Successful', user_id: user.user_id });
+                res.status(200).json({ message: 'Login Successful', user_id: user.user_id, role: user.role});
             } else {
                 console.log('Authentication Failed')
                 res.status(401).json({message: 'Authentication Failed'})
@@ -111,21 +111,29 @@ app.post('/flashcards', async (req, res) => {
   });
 //put-----------------
 app.put('/flashcards/:id', async (req, res) => {
-  const id = parseInt(req.params.id);
-  const {category_id, word, definition} = req.body;
-  if(!category_id || !word || !definition){
-    return res.status(400).json('All fields required')
-  }
-  try{
-    const { rows } = await pool.query(
-      'UPDATE flashcards SET (category_id, word, definition,) = ($1, $2, $3) WHERE id = $4 RETURNING *',
-      [category_id, word, definition]
-    );
-  }catch(error){
-    res.status(500).json({ error: 'Internal server error' });
-    console.error(error);
-  }
-})
+    const id = parseInt(req.params.id);
+    const { category_id, word, definition } = req.body;
+    
+    if (!category_id || !word || !definition) {
+      return res.status(400).json('All fields required');
+    }
+  
+    try {
+      const { rowCount } = await pool.query(
+        'UPDATE flashcards SET category_id = $1, word = $2, definition = $3 WHERE id = $4 RETURNING *',
+        [category_id, word, definition, id]
+      );
+  
+      if (rowCount === 0) {
+        return res.status(404).json({ error: 'Flashcard not found' });
+      }
+  
+      res.json({ message: 'Flashcard updated successfully' });
+    } catch(error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 //delete---------------
 app.delete('/flashcards/:id', async(req, res) => {
   const id = parseInt(req.params.id);
@@ -203,6 +211,16 @@ app.get('/flashcards/node', async (req, res) => {
       res.json(rows)
   } catch (error) {
       res.json(error)
+      console.log(error);
+  }
+});
+//get all commands
+app.get('/commands', async (req, res, next) => {
+  try {
+      const {rows} = await pool.query('SELECT * FROM commands;');
+      res.json(rows)
+  } catch (error) {
+      res.status(500).json(error)
       console.log(error);
   }
 });
